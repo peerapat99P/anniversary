@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>สำหรับเธอคนเดียว</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  height:100%;
+  font-family:Inter,sans-serif;
+  background:#0f0f14;
+  color:#fff;
+}
+
+.screen{
+  position:fixed;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  transition:opacity .8s ease;
+}
+.hidden{
+  opacity:0;
+  pointer-events:none;
+}
+
+.intro{text-align:center;padding:20px}
+.intro h1{
+  font-family:'Playfair Display',serif;
+  font-size:36px;
+}
+.btn{
+  margin-top:30px;
+  padding:14px 28px;
+  border:none;
+  border-radius:999px;
+  background:#ff6b81;
+  color:#fff;
+  font-size:16px;
+  cursor:pointer;
+}
+
+.typing{
+  text-align:center;
+  font-size:22px;
+  padding:20px;
+  line-height:1.7;
+}
+
+.final{
+  background:linear-gradient(180deg,#000,#111);
+  text-align:center;
+}
+.final h2{
+  font-family:'Playfair Display',serif;
+  font-size:46px;
+}
+.final p{
+  font-size:20px;
+  white-space:pre-line;
+}
+
+/* music button */
+.musicBtn{
+  position:fixed;
+  bottom:24px;
+  right:24px;
+  background:#ff6b81;
+  color:#fff;
+  border:none;
+  padding:14px 20px;
+  border-radius:999px;
+  cursor:pointer;
+  font-size:14px;
+  z-index:999;
+}
+
+/* loading music screen */
+.loading{
+  text-align:center;
+  font-size:20px;
+  background:rgba(0,0,0,.85);
+}
+.loading span{
+  opacity:.7;
+  font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🔊 เพลง -->
+<audio id="music" src="song.mp3" loop></audio>
+
+<button id="musicBtn" class="musicBtn">🎵 เปิดเพลง</button>
+
+<!-- loading เพลง -->
+<div id="loading" class="screen loading hidden">
+  <div>
+    <p>🎶 กำลังเริ่มเพลง…</p>
+    <span>กรุณารอสักครู่</span>
+  </div>
+</div>
+
+<!-- หน้าแรก -->
+<div id="s1" class="screen intro">
+  <div>
+    <h1>เรามีบางอย่างอยากให้เธอดู</h1>
+    <p>มันถูกทำขึ้นมาเพื่อเธอคนเดียว</p>
+    <button class="btn" onclick="goTyping()">เปิดดู</button>
+  </div>
+</div>
+
+<!-- พิมพ์ข้อความ -->
+<div id="s2" class="screen typing hidden"></div>
+
+<!-- หน้าสุดท้าย -->
+<div id="s3" class="screen final hidden">
+  <div>
+    <h2>ถึงที่รักของฉัน</h2>
+    <p>
+1 ปี 9 เดือน  
+ทุกช่วงเวลาที่มีเธอ  
+คือความสุขของฉันเสมอ  
+
+รักนะ 🤍
+    </p>
+  </div>
+</div>
+
+<script>
+const s1 = document.getElementById('s1');
+const s2 = document.getElementById('s2');
+const s3 = document.getElementById('s3');
+const music = document.getElementById('music');
+const musicBtn = document.getElementById('musicBtn');
+const loading = document.getElementById('loading');
+
+/* กดเปิดเพลง */
+musicBtn.onclick = () => {
+  musicBtn.style.display = 'none';
+  loading.classList.remove('hidden');
+
+  music.play();
+
+  // รอ 5 วิ แล้วซ่อนข้อความ
+  setTimeout(()=>{
+    loading.classList.add('hidden');
+  },5000);
+};
+
+function goTyping(){
+  s1.classList.add('hidden');
+  setTimeout(()=>{
+    s2.classList.remove('hidden');
+    typeText("เราเดินมาด้วยกันมาแล้ว\n1 ปี 9 เดือน…",()=> {
+      setTimeout(goFinal,800);
+    });
+  },500);
+}
+
+function typeText(text,done){
+  let i=0;
+  s2.textContent='';
+  const timer=setInterval(()=>{
+    s2.textContent+=text[i];
+    i++;
+    if(i>=text.length){
+      clearInterval(timer);
+      done();
+    }
+  },60);
+}
+
+function goFinal(){
+  s2.classList.add('hidden');
+  s3.classList.remove('hidden');
+}
+</script>
+
+</body>
+</html>
