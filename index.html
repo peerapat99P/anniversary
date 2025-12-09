@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>สำหรับเธอคนเดียว</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box}
+html,body{
+  margin:0;height:100%;
+  font-family:Inter,system-ui;
+  background:#0f0f14;color:#fff;
+}
+
+/* screens */
+.screen{
+  position:fixed;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity 1s ease;
+}
+.hidden{opacity:0;pointer-events:none}
+
+/* intro */
+.intro{text-align:center;padding:24px}
+.intro h1{
+  font-family:'Playfair Display',serif;
+  font-size:34px;
+  margin-bottom:12px
+}
+.intro p{opacity:.8}
+.btn{
+  margin-top:24px;
+  padding:14px 24px;
+  border-radius:999px;
+  border:none;
+  background:#ff6b81;
+  color:#fff;
+  font-size:16px;
+  cursor:pointer
+}
+
+/* typing */
+.typing{
+  font-size:22px;
+  line-height:1.6;
+  text-align:center;
+  max-width:720px;
+  padding:24px
+}
+
+/* final */
+.final{position:fixed;inset:0;overflow:hidden}
+.bg{
+  position:absolute;inset:0;
+  background:#000;
+  background-size:cover;
+  background-position:center;
+  filter:brightness(.45)
+}
+.overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,.3),rgba(0,0,0,.7))
+}
+.content{
+  position:relative;z-index:2;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:24px
+}
+.content h2{
+  font-family:'Playfair Display',serif;
+  font-size:46px;
+  margin-bottom:12px
+}
+.content p{
+  font-size:20px;
+  white-space:pre-line
+}
+
+/* hearts */
+.heart{
+  position:absolute;
+  width:14px;height:14px;
+  background:#ff6b81;
+  transform:rotate(-45deg);
+  animation:float 4s infinite
+}
+.heart:before,.heart:after{
+  content:'';
+  position:absolute;
+  width:14px;height:14px;
+  background:#ff6b81;
+  border-radius:50%
+}
+.heart:before{top:-7px;left:0}
+.heart:after{left:7px;top:0}
+
+@keyframes float{
+  0%{transform:translateY(0) rotate(-45deg);opacity:0}
+  20%{opacity:1}
+  100%{transform:translateY(-220px) rotate(-45deg);opacity:0}
+}
+
+/* music prompt */
+.musicPrompt{
+  position:fixed;
+  right:-260px;
+  bottom:24px;
+  width:240px;
+  background:#16161d;
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+  transition:right .6s ease;
+  z-index:999;
+}
+.musicPrompt.show{right:24px}
+.musicPrompt p{
+  margin:0 0 12px;
+  font-size:14px;
+  opacity:.9
+}
+.musicPrompt button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:999px;
+  margin-top:8px;
+  cursor:pointer;
+  font-size:14px
+}
+.musicPrompt .yes{background:#ff6b81;color:#fff}
+.musicPrompt .no{background:#2a2a35;color:#fff}
+</style>
+</head>
+
+<body>
+
+<!-- 🔧 แก้ได้แค่ตรงนี้ถ้าจะเปลี่ยนข้อความ/รูป -->
+<script>
+const NAME = 'ที่รัก';
+const MESSAGE =
+`เราเดินมาด้วยกันมาแล้ว
+1 ปี 9 เดือน
+
+ทุกช่วงเวลาที่มีเธอ
+คือของขวัญที่ดีที่สุด
+
+สุขสันต์วันครบรอบนะ ❤️`;
+
+const BG_IMAGE =
+'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80';
+
+/* ✅ เพลงของคุณ (แปลง direct link แล้ว) */
+const MUSIC_URL =
+'https://docs.google.com/uc?export=download&id=1ODRklMVE-6rHxkmyEABtJEJPRn96puRB';
+</script>
+
+<audio id="music" loop></audio>
+
+<div id="musicPrompt" class="musicPrompt">
+  <p>อยากเปิดเพลงประกอบไหม 🎶</p>
+  <button class="yes" onclick="playMusic()">เปิดเพลง</button>
+  <button class="no" onclick="closeMusic()">ไม่เปิด</button>
+</div>
+
+<div id="s1" class="screen intro">
+  <div>
+    <h1>เรามีบางอย่างอยากให้เธอดู</h1>
+    <p>มันถูกทำขึ้นมาเพื่อเธอคนเดียว</p>
+    <button class="btn" onclick="go2()">เปิดดู</button>
+  </div>
+</div>
+
+<div id="s2" class="screen typing hidden"></div>
+
+<div id="s3" class="screen final hidden">
+  <div class="bg" id="bg"></div>
+  <div class="overlay"></div>
+  <div class="content">
+    <div>
+      <h2 id="finalName"></h2>
+      <p id="finalMsg"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+const s1 = document.getElementById('s1');
+const s2 = document.getElementById('s2');
+const s3 = document.getElementById('s3');
+const bg = document.getElementById('bg');
+const finalName = document.getElementById('finalName');
+const finalMsg = document.getElementById('finalMsg');
+const music = document.getElementById('music');
+const promptBox = document.getElementById('musicPrompt');
+
+music.src = MUSIC_URL;
+music.volume = 0;
+
+function go2(){
+  s1.classList.add('hidden');
+  setTimeout(()=>{
+    s2.classList.remove('hidden');
+    promptBox.classList.add('show');
+    typeText('เราเดินมาด้วยกัน 1 ปี 9 เดือนแล้วนะ…',()=>{
+      setTimeout(go3,700);
+    });
+  },500);
+}
+
+function playMusic(){
+  promptBox.classList.remove('show');
+
+  music.load();              // ⭐ บังคับโหลดใหม่
+  music.volume = 0;
+  music.play().then(()=>{
+    let v = 0;
+    const fade = setInterval(()=>{
+      v += 0.05;
+      music.volume = Math.min(v, 0.7);
+      if(v >= 0.7) clearInterval(fade);
+    }, 150);
+  }).catch(err=>{
+    alert('เบราว์เซอร์บล็อกเสียง 😭 ลองกดอีกครั้ง');
+    console.log(err);
+  });
+}
+
+
+function closeMusic(){
+  promptBox.classList.remove('show');
+}
+
+function typeText(text,done){
+  let i=0;
+  s2.textContent='';
+  const timer=setInterval(()=>{
+    s2.textContent+=text[i];
+    i++;
+    if(i>=text.length){
+      clearInterval(timer);
+      done&&done();
+    }
+  },60);
+}
+
+function go3(){
+  s3.classList.remove('hidden');
+  bg.style.backgroundImage=`url(${BG_IMAGE})`;
+  finalName.textContent=NAME;
+  finalMsg.textContent=MESSAGE;
+  spawnHearts();
+  setTimeout(()=>s2.classList.add('hidden'),300);
+}
+
+function spawnHearts(){
+  for(let i=0;i<18;i++){
+    const h=document.createElement('div');
+    h.className='heart';
+    h.style.left=Math.random()*100+'%';
+    h.style.bottom='10px';
+    h.style.animationDelay=(Math.random()*2)+'s';
+    s3.appendChild(h);
+  }
+}
+</script>
+
+</body>
+</html>
